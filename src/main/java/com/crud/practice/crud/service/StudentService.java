@@ -10,11 +10,11 @@ import java.util.stream.Collectors;
 @Service
 public class StudentService {
 
-    private List<User> userList = new ArrayList<>();
+    private final List<User> userList = new ArrayList<>();
     private int idCounter = 1;
 
     public User addStudent(User user){
-        if (userList.size() >= 1){
+        if (!userList.isEmpty()){
             for (User userInList : userList){
                 if (userInList.getId() == user.getId()){
                     return null;
@@ -51,8 +51,6 @@ public class StudentService {
                 user.setName(UpdateUser.getName());
                 user.setAge(UpdateUser.getAge());
                 return user;
-            }else {
-                return null;
             }
         }
         return null;
