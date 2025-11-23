@@ -1,69 +1,49 @@
 package com.crud.practice.crud.service;
 
-import com.crud.practice.crud.entity.User;
+import com.crud.practice.crud.entity.Student;
+import com.crud.practice.crud.repository.StudentRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class StudentService {
 
-    private final List<User> userList = new ArrayList<>();
-    private int idCounter = 1;
+    private final StudentRepository studentRepository;
 
-    public User addStudent(User user){
-        if (!userList.isEmpty()){
-            for (User userInList : userList){
-                if (userInList.getId() == user.getId()){
-                    return null;
-                }else {
-                    user.setId(idCounter++);
-                    userList.add(user);
-                    System.out.println(userList.toString() + "User added successfully");
-                    return user;
-                }
-            }
-        }
-        user.setId(idCounter++);
-        userList.add(user);
-        System.out.println(userList.toString() + "User added successfully");
-        return user;
+
+    public Student addStudent(Student student){
+        studentRepository.save(student);
+        System.out.println(studentRepository.toString() + "User added successfully");
+        return student;
     }
 
-    public List<User> getAllUserList(){
-        return userList;
+    public List<Student> getAllUserList(){
+        return studentRepository.findAll();
     }
 
-    public User getUserById(int id){
-        for (User user : userList){
-            if (user.getId() == id){
-                return user;
-            }
-        }
-        return null;
+    public Student getUserById(int id){
+        return studentRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Student not fount with id " + id));
     }
 
-    public User updateStudentList(int id , User UpdateUser){
-        for (User user : userList){
-            if (user.getId() == id ){
-                user.setName(UpdateUser.getName());
-                user.setAge(UpdateUser.getAge());
-                return user;
-            }
-        }
-        return null;
+    public Student updateStudent(int id , Student updateStudent){
+        return studentRepository.findById(id).map(student -> {
+            student.setName(updateStudent.getName());
+            student.setAge(updateStudent.getAge());
+            return studentRepository.save(student);
+        }).orElseThrow(() -> new RuntimeException("Student not found with id" + id));
     }
 
     public String deleteStudentFromList(int id){
-        for (User user: userList){
-            if (user.getId()==id){
-                userList.remove(user);
-                return "User delete Successfully";
-            }
+        if (studentRepository.existsById(id)){
+            studentRepository.deleteById(id);
+            return "Student delete successfully";
         }
-        return "User not available";
+        throw new RuntimeException("Student not found with id " + id);
     }
 
 }
