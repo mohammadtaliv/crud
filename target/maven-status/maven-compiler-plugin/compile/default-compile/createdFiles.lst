@@ -1,0 +1,5 @@
+com/crud/practice/crud/entity/Student.class
+com/crud/practice/crud/repository/StudentRepository.class
+com/crud/practice/crud/controller/StudentController.class
+com/crud/practice/crud/service/StudentService.class
+com/crud/practice/crud/CrudApplication.class

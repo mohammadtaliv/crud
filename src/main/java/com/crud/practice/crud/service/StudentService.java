@@ -1,7 +1,6 @@
 package com.crud.practice.crud.service;
 
 import com.crud.practice.crud.entity.Student;
-import com.crud.practice.crud.exception.BadRequestException;
 import com.crud.practice.crud.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
