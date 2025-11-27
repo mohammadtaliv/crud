@@ -2,6 +2,7 @@ package com.crud.practice.crud.service;
 
 import com.crud.practice.crud.entity.Student;
 import com.crud.practice.crud.exception.BadRequestException;
+import com.crud.practice.crud.exception.StudentNotFoundException;
 import com.crud.practice.crud.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,8 +22,8 @@ public class StudentService {
     public Student addStudent(Student student){
         logger.info("Adding student {}" , student );
         if (student.getName() == null || student.getName().isBlank()){
-            logger.error("Student name can not be empty");
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            logger.error("Student name cannot be empty");
+            throw new BadRequestException("Student name cannot be empty");
         }
             Student savedStudent = studentRepository.save(student);
             logger.info("Student added successfully with ID: {}", savedStudent.getId());
@@ -37,9 +38,9 @@ public class StudentService {
     public Student getUserById(int id){
         logger.info("Fetching student with ID: {}", id);
         return studentRepository.findById(id)
-        .orElseThrow(() ->{
-            logger.error("Student not found with ID: {}" , id);
-            return new ResponseStatusException(HttpStatus.NOT_FOUND);
+        .orElseThrow(() -> {
+            logger.error("Student not found with id {}" , id);
+            return new StudentNotFoundException("Student not found with id " + id);
         });
     }
 
@@ -51,9 +52,9 @@ public class StudentService {
             Student updatedSavedStudent= studentRepository.save(student);
             logger.info("Student Details updated with id {}: {}", id, updatedSavedStudent);
             return updatedSavedStudent;
-        }).orElseThrow(() ->{
-            logger.error("Failed to update. Student not found with ID: {}", id);
-            return new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }).orElseThrow(() -> {
+            logger.error("Student not found with id {}",id);
+            return new StudentNotFoundException("Student not found with id " + id);
         });
 
     }
@@ -66,7 +67,7 @@ public class StudentService {
             return "Student delete successfully";
         }
         logger.error("Delete failed. Student not found with ID: {}", id);
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        throw new StudentNotFoundException("Student not found with id " + id);
     }
 
 }
