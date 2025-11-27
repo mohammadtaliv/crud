@@ -1,69 +1,71 @@
 package com.crud.practice.crud.service;
 
-import com.crud.practice.crud.entity.User;
+import com.crud.practice.crud.entity.Student;
+import com.crud.practice.crud.repository.StudentRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
+@RequiredArgsConstructor
 public class StudentService {
+    private final StudentRepository studentRepository;
+    private static final Logger logger = LogManager.getLogger(StudentService.class);
 
-    private final List<User> userList = new ArrayList<>();
-    private int idCounter = 1;
-
-    public User addStudent(User user){
-        if (!userList.isEmpty()){
-            for (User userInList : userList){
-                if (userInList.getId() == user.getId()){
-                    return null;
-                }else {
-                    user.setId(idCounter++);
-                    userList.add(user);
-                    System.out.println(userList.toString() + "User added successfully");
-                    return user;
-                }
-            }
+    public Student addStudent(Student student){
+        logger.info("Adding student {}" , student );
+        if (student.getName() == null || student.getName().isBlank()){
+            logger.error("Student name can not be empty");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        user.setId(idCounter++);
-        userList.add(user);
-        System.out.println(userList.toString() + "User added successfully");
-        return user;
+            Student savedStudent = studentRepository.save(student);
+            logger.info("Student added successfully with ID: {}", savedStudent.getId());
+            return savedStudent;
     }
 
-    public List<User> getAllUserList(){
-        return userList;
+    public List<Student> getAllUserList(){
+        logger.info("fetching all the student from Student Repository");
+        return studentRepository.findAll();
     }
 
-    public User getUserById(int id){
-        for (User user : userList){
-            if (user.getId() == id){
-                return user;
-            }
-        }
-        return null;
+    public Student getUserById(int id){
+        logger.info("Fetching student with ID: {}", id);
+        return studentRepository.findById(id)
+        .orElseThrow(() ->{
+            logger.error("Student not found with ID: {}" , id);
+            return new ResponseStatusException(HttpStatus.NOT_FOUND);
+        });
     }
 
-    public User updateStudentList(int id , User UpdateUser){
-        for (User user : userList){
-            if (user.getId() == id ){
-                user.setName(UpdateUser.getName());
-                user.setAge(UpdateUser.getAge());
-                return user;
-            }
-        }
-        return null;
+    public Student updateStudent(int id , Student updateStudent){
+        logger.info("Updating student with ID: {}", id);
+        return studentRepository.findById(id).map(student -> {
+            student.setName(updateStudent.getName());
+            student.setAge(updateStudent.getAge());
+            Student updatedSavedStudent= studentRepository.save(student);
+            logger.info("Student Details updated with id {}: {}", id, updatedSavedStudent);
+            return updatedSavedStudent;
+        }).orElseThrow(() ->{
+            logger.error("Failed to update. Student not found with ID: {}", id);
+            return new ResponseStatusException(HttpStatus.NOT_FOUND);
+        });
+
     }
 
     public String deleteStudentFromList(int id){
-        for (User user: userList){
-            if (user.getId()==id){
-                userList.remove(user);
-                return "User delete Successfully";
-            }
+        logger.info("Deleting student with ID: {}", id);
+        if (studentRepository.existsById(id)){
+            studentRepository.deleteById(id);
+            logger.info("Student deleted successfully with ID: {}", id);
+            return "Student delete successfully";
         }
-        return "User not available";
+        logger.error("Delete failed. Student not found with ID: {}", id);
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
 }

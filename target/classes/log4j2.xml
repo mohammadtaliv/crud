@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+
+    <Appenders>
+
+        <!-- 1) Console logs with colored levels -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <!-- <PatternLayout pattern="%d{HH:mm:ss} %highlight{%-5p}{FATAL=bg_red bold, ERROR=red bold, WARN=yellow bold, INFO=blue bold, DEBUG=cyan bold} [%c{1}] - %m%n"/> -->
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %highlight{%-5p}{FATAL=bg_red bold, ERROR=red bold, WARN=yellow bold, INFO=blue bold, DEBUG=cyan bold} [%c{1}.%M:%L] [%t] - %m%n%ex{full}"/>
+        </Console>
+
+        <!-- 2) Clean Rolling File Logs -->
+        <RollingFile name="FileLogger"
+                     fileName="logs/app.log"
+                     filePattern="logs/app-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} | %-5p | %-20c{1} | %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+
+        <!-- 3) JSON Rolling File Logs -->
+        <RollingFile name="JsonLogger"
+                     fileName="logs/app.json"
+                     filePattern="logs/app-%d{yyyy-MM-dd}-%i.json.gz">
+            <PatternLayout>
+                <pattern><![CDATA[{"timestamp":"%d{ISO8601}", "level":"%p", "logger":"%c{1}", "message":"%m"}]]></pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="10MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+
+    </Appenders>
+
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="FileLogger"/>
+            <AppenderRef ref="JsonLogger"/>
+        </Root>
+    </Loggers>
+
+</Configuration>
